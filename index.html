@@ -425,6 +425,20 @@ textarea.fc{resize:vertical;min-height:80px}
 .sync-bar.syncing{background:var(--b1);color:white}
 .sync-bar.synced{background:var(--ok);color:white}
 
+/* ================================================
+   GUIDED ONBOARDING
+================================================ */
+.ob-modal{position:fixed;inset:0;background:rgba(40,21,32,.55);z-index:700;display:none;align-items:flex-end;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.ob-modal.on{display:flex}
+.ob-panel{background:var(--cr);border-radius:24px 24px 0 0;padding:28px 22px 44px;width:100%;max-width:520px;margin:0 auto;animation:shUp .36s cubic-bezier(.34,1.1,.64,1)}
+.ob-emoji{font-size:38px;text-align:center;margin-bottom:12px}
+.ob-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--tx);text-align:center;margin-bottom:8px}
+.ob-msg{font-size:13px;color:var(--t2);line-height:1.75;text-align:center;margin-bottom:22px}
+.ob-actions{display:flex;flex-direction:column;gap:9px}
+.ob-inline{background:var(--rs);border:1.5px solid var(--r2);border-radius:var(--rs2);padding:13px 15px;margin-top:10px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.ob-inline-text{font-size:13px;color:var(--rd);font-weight:500;line-height:1.5}
+.ob-inline-btn{font-size:12px;font-weight:700;padding:7px 14px;border-radius:8px;border:none;background:var(--r1);color:white;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;flex-shrink:0}
+
 @media print{
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .topbar,.bnav,.smov,.rep-actions,.irep-actions,.fab,
@@ -658,7 +672,7 @@ textarea.fc{resize:vertical;min-height:80px}
         </div>
       </div>
       <!-- Cloudflare Turnstile CAPTCHA -->
-      <div class="cf-turnstile" data-sitekey="0x4AAAAAADFHSihoB5tBmo9r" data-theme="light" style="margin-bottom:10px" id="cf-turnstile-widget"></div>
+      <div class="cf-turnstile" data-sitekey="0x4AAAAAADFHSihoB5tBmo9ra" data-theme="light" style="margin-bottom:10px" id="cf-turnstile-widget"></div>
       <button class="btn btn-p btn-bl" id="reg-btn" style="margin-top:6px" onclick="doRegister()">Buat Akun</button>
       <p style="text-align:center;font-size:12px;color:var(--t3);margin-top:10px">Sudah punya akun? <a href="#" onclick="switchAuthTab('login');return false" style="color:var(--r1);font-weight:600">Masuk di sini</a></p>
     </div>
@@ -1118,6 +1132,130 @@ textarea.fc{resize:vertical;min-height:80px}
   </div>
 </div>
 
+<!-- GUIDED ONBOARDING MODAL (Step 1) -->
+<div class="ob-modal" id="ob-guide-modal">
+  <div class="ob-panel">
+    <div class="ob-emoji">👋</div>
+    <div class="ob-title" id="ob-guide-title">Halo!</div>
+    <div class="ob-msg">Mulai dengan menambahkan <strong>1 murid</strong> terlebih dahulu.<br>Hanya butuh <strong>≤ 30 detik</strong>. Setelah itu kamu langsung bisa catat sesi dan kirim laporan ke orang tua.</div>
+    <div class="ob-actions">
+      <button class="btn btn-p btn-bl" onclick="ob_addStudent()">+ Tambah Murid Sekarang</button>
+      <button class="btn btn-gh btn-bl" onclick="ob_skip()">Lewati, jelajahi dulu</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================================================
+   GUIDED ONBOARDING SYSTEM
+   Storage keys:
+     ilmuna_ob_done     = '1' when full onboarding complete
+     ilmuna_ob_step     = '1'|'2'|'3' current step
+================================================ */
+
+// ── CHECK: is this user's first login? ───────────────────────
+function ob_isFirstTime(){
+  return !localStorage.getItem('ilmuna_ob_done');
+}
+
+// ── STEP 1: show welcome modal after first boot ───────────────
+function ob_maybeShowStep1(){
+  if(!ob_isFirstTime())return;
+  if(localStorage.getItem('ilmuna_ob_step'))return; // already started
+  const modal=document.getElementById('ob-guide-modal');
+  if(!modal)return;
+  // Personalise title with user name
+  const name=currentUser?currentUser.name.split(' ')[0]:'';
+  document.getElementById('ob-guide-title').textContent='Halo'+( name?' '+name:'')+' 👋';
+  localStorage.setItem('ilmuna_ob_step','1');
+  modal.classList.add('on');
+}
+
+// ── STEP 1 ACTIONS ────────────────────────────────────────────
+function ob_addStudent(){
+  document.getElementById('ob-guide-modal').classList.remove('on');
+  openAddStudent(); // open existing add student modal
+}
+
+function ob_skip(){
+  document.getElementById('ob-guide-modal').classList.remove('on');
+  localStorage.setItem('ilmuna_ob_done','1'); // mark complete on skip
+}
+
+// ── STEP 2: inline nudge after first student added ────────────
+// Called from db_addStudent (first student only)
+function ob_maybeShowStep2(studentName){
+  if(!ob_isFirstTime())return;
+  if(localStorage.getItem('ilmuna_ob_step')==='done')return;
+  if(appData.students.length!==1)return; // only first student
+  localStorage.setItem('ilmuna_ob_step','2');
+
+  // Inject inline nudge into dashboard student list area
+  setTimeout(()=>{
+    const list=document.getElementById('student-list');
+    if(!list)return;
+    const fname=studentName?studentName.split(' ')[0]:studentName;
+    const existing=document.getElementById('ob-step2-nudge');
+    if(existing)return;
+    const nudge=document.createElement('div');
+    nudge.id='ob-step2-nudge';
+    nudge.className='ob-inline fade-up';
+    nudge.innerHTML=`
+      <div class="ob-inline-text">
+        📝 Sekarang coba catat sesi pertama untuk <strong>${esc(fname)}</strong>
+      </div>
+      <button class="ob-inline-btn" onclick="ob_goCatat()">Catat Sekarang</button>`;
+    list.prepend(nudge);
+  }, 400);
+}
+
+function ob_goCatat(){
+  const s=appData.students[0];
+  if(!s)return;
+  goCatat(s.id); // existing function
+}
+
+// ── STEP 3: success state after first session logged ──────────
+// Called from ui_showReport (first session only)
+// Returns true if it handled the render, false otherwise
+function ob_maybeShowStep3(repText, waNum){
+  if(!ob_isFirstTime())return false;
+  if(localStorage.getItem('ilmuna_ob_step')!=='2')return false;
+  localStorage.setItem('ilmuna_ob_step','done');
+  localStorage.setItem('ilmuna_ob_done','1');
+
+  // Remove step 2 nudge
+  const n=document.getElementById('ob-step2-nudge');if(n)n.remove();
+
+  // Render enriched success state
+  const wrap=document.getElementById('irep-wrap');
+  if(!wrap)return false;
+  const phone=(waNum||'').replace(/\D/g,'').replace(/^0/,'62');
+  const waLink=waNum
+    ?`https://wa.me/${phone}?text=${encodeURIComponent(repText)}`
+    :'#';
+
+  wrap.innerHTML=`<div class="irep fade-up">
+    <div class="irep-t" style="font-size:16px;text-align:center;margin-bottom:6px">✨ Laporan siap dikirim!</div>
+    <p style="font-size:12px;color:var(--t2);text-align:center;margin-bottom:14px;line-height:1.6">
+      Kamu baru saja mencatat sesi pertama dan laporan otomatis terbentuk.<br>Kirim ke orang tua sekarang!
+    </p>
+    <textarea class="irep-edit-area" id="irep-ta">${esc(repText)}</textarea>
+    <div class="irep-actions" style="margin-top:12px">
+      <button class="btn btn-gh" onclick="copyIrep()">📋 Salin Laporan</button>
+      ${waNum
+        ?`<button class="btn btn-wa" onclick="window.open('${waLink}','_blank')">📤 Kirim WhatsApp</button>`
+        :`<button class="btn btn-wa" onclick="toast('Nomor WA belum diisi di profil murid.')">📤 Kirim WhatsApp</button>`
+      }
+    </div>
+    <div style="margin-top:10px;padding:12px;background:var(--gs);border-radius:var(--rs2);font-size:12px;color:var(--g1);text-align:center;line-height:1.6">
+      🎉 <strong>Selamat!</strong> Kamu sudah siap menggunakan Ilmuna sepenuhnya.
+    </div>
+  </div>`;
+  return true; // signal: we handled the render
+}
+</script>
+
 <script>
 /* ================================================
    CONFIG
@@ -1567,7 +1705,7 @@ async function bootApp(user){
   // Plan badge will be rendered by _applyPlanBadge after syncProfile completes.
   // For now just show loading state if plan is null (first load).
   _applyPlanBadge(user.plan, user.role);
-  setTimeout(()=>{renderDash();checkProgressNudge();},10);
+  setTimeout(()=>{renderDash();checkProgressNudge();ob_maybeShowStep1();},10);
 }
 
 // ── SYNC PROFILE: fetch plan from Supabase (source of truth) ──
@@ -1993,6 +2131,7 @@ function db_addStudent(obj){
   saveLocal(currentUser.id);
   enqueue(currentUser.id,{t:'stu_ins',d:{id:obj.id,name:obj.name,parent:obj.parent,wa:obj.wa,programs:obj.programs,created_at:obj.createdAt}});
   scheduleSync();
+  ob_maybeShowStep2(obj.name); // ONBOARDING step 2 hook
 }
 
 // db_updateStudent: persist student edit locally + queue Supabase update
@@ -2104,6 +2243,14 @@ function ui_showReport(repText,waNum){
   wrap.style.display='block';
   wrap.dataset.reptext=repText;
   wrap.dataset.wa=waNum||'';
+
+  // ONBOARDING: step 3 intercepts first session — returns true if handled
+  if(typeof ob_maybeShowStep3==='function'&&ob_maybeShowStep3(repText,waNum)){
+    wrap.scrollIntoView({behavior:'smooth',block:'start'});
+    return;
+  }
+
+  // Normal report card for subsequent sessions
   wrap.innerHTML=`<div class="irep fade-up">
     <div class="irep-t">Laporan Pertemuan Siap ✓</div>
     <textarea class="irep-edit-area" id="irep-ta">${esc(repText)}</textarea>
