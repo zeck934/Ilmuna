@@ -1554,7 +1554,26 @@ function switchAuthTab(t){
   document.querySelectorAll('.auth-tab').forEach((b,i)=>b.classList.toggle('on',(t==='login'&&i===0)||(t==='register'&&i===1)));
   document.getElementById('form-login').classList.toggle('on',t==='login');
   document.getElementById('form-register').classList.toggle('on',t==='register');
+  // Render Turnstile AFTER register form is visible (widget needs visible container)
+  if(t==='register') renderTurnstile();
   document.getElementById('auth-err').classList.remove('on');
+}
+
+// Render Turnstile manually — safe to call multiple times (prevents duplicates)
+function renderTurnstile(){
+  const container=document.getElementById('cf-turnstile-widget');
+  if(!container)return;
+  // Already rendered — skip
+  if(container.querySelector('iframe'))return;
+  // Turnstile script not loaded yet — retry once it is
+  if(typeof turnstile==='undefined'){
+    setTimeout(renderTurnstile, 500);
+    return;
+  }
+  turnstile.render(container,{
+    sitekey: container.dataset.sitekey||'0x4AAAAAADFHSihoB5tBmo9ra',
+    theme: 'light',
+  });
 }
 
 async function doLogin(){
