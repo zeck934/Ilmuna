@@ -1094,35 +1094,21 @@ textarea.fc{resize:vertical;min-height:80px}
       <span class="pricing-once">Sekali bayar, selamanya</span>
     </div>
     <div class="pricing-cards">
-      <!-- FULL — PRIMARY -->
+      <!-- PREMIUM — SINGLE PLAN -->
       <div class="pricing-card primary">
-        <div class="pricing-badge">Paling dipilih ✨</div>
-        <div class="pricing-plan-name">💎 Full</div>
-        <div class="pricing-price">Rp99.000</div>
-        <div class="pricing-price-sub">Sebagian besar pengguna memilih paket ini</div>
+        <div class="pricing-badge">Untuk guru yang serius 💎</div>
+        <div class="pricing-plan-name">Premium</div>
+        <div class="pricing-price">Rp149.000</div>
+        <div class="pricing-price-sub">Sekali bayar, langsung aktif</div>
         <ul class="pricing-features">
-          <li>Semua fitur Basic</li>
-          <li>Tanpa watermark</li>
-          <li>Laporan murid otomatis</li>
-          <li>Tampilan lebih rapi &amp; profesional</li>
-          <li>Analytics sederhana</li>
+          <li>Murid tanpa batas — tambah sebanyak yang kamu ajar</li>
+          <li>Laporan pertemuan otomatis, tinggal kirim ke orang tua</li>
+          <li>Tampilan laporan bersih tanpa watermark</li>
+          <li>Fitur grup belajar untuk kelas bersama</li>
+          <li>Support dibantu sampai bisa pakai</li>
         </ul>
-        <p class="pricing-microcopy">Lebih nyaman dipakai untuk jangka panjang tanpa batasan</p>
-        <button class="btn btn-p btn-bl" onclick="closeUpgradeModal('m-pricing');showUpgradeInfo('full')">Pilih Paket Ini</button>
-      </div>
-      <!-- BASIC -->
-      <div class="pricing-card">
-        <div class="pricing-plan-name">🌱 Basic</div>
-        <div class="pricing-price" style="font-size:26px">Rp69.000</div>
-        <div class="pricing-price-sub">Mulai dari sini</div>
-        <ul class="pricing-features">
-          <li>Murid tanpa batas</li>
-          <li>Catat sesi</li>
-          <li>Export profil (versi standar)</li>
-          <li>Watermark kecil</li>
-        </ul>
-        <p class="pricing-microcopy">Cukup untuk mulai</p>
-        <button class="btn btn-gh btn-bl" onclick="closeUpgradeModal('m-pricing');showUpgradeInfo('basic')">Pilih Paket Ini</button>
+        <p class="pricing-microcopy">Tools yang membantu kamu lebih fokus mengajar, bukan nulis laporan ✨</p>
+        <button class="btn btn-p btn-bl" onclick="closeUpgradeModal('m-pricing');showUpgradeInfo('premium')">Aktifkan via WhatsApp</button>
       </div>
     </div>
     <div class="wa-fallback" id="wafb-pricing">
@@ -3625,7 +3611,7 @@ function showUpgradeInfo(plan){
     openUpgradeModal('m-pricing');
     return;
   }
-  const planLabel=plan==='basic'?'Basic (69k)':'Full (99k)';
+  const planLabel='Premium (Rp149.000)';
   const msg='Halo kak, saya mau upgrade Ilmuna \uD83D\uDE4C\nNama: '+name+'\nJumlah murid saat ini: '+stuCount+'\nPaket yang dipilih: '+planLabel+'\nBoleh info cara bayarnya?';
   toast('Menghubungkan ke WhatsApp... \uD83D\uDCAC');
   setTimeout(()=>{window.open('https://wa.me/'+ADMIN_WA+'?text='+encodeURIComponent(msg),'_blank');},600);
