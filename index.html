@@ -12,7 +12,7 @@
 <link rel="manifest" id="pwa-manifest">
 <link rel="apple-touch-icon" id="apple-icon">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="window._sbFailed=true"></script>
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
 <script>
   const SUPABASE_URL = 'https://xleyxoiznjhxxudcsxrh.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_Fe4Yeg5mOhIydRO_APtpcQ_7U27shsl';
@@ -671,8 +671,13 @@ textarea.fc{resize:vertical;min-height:80px}
           <button type="button" onclick="togglePw('r-pass',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);border:none;background:none;cursor:pointer;color:var(--t3);font-size:16px;padding:0;line-height:1">👁</button>
         </div>
       </div>
-      <!-- Cloudflare Turnstile CAPTCHA — rendered manually via renderTurnstile() when tab is shown -->
-      <div id="cf-turnstile-widget" data-sitekey="0x4AAAAAADFHSihoB5tBmo9ra" style="margin-bottom:10px;min-height:65px"></div>
+      <!-- hCaptcha — auto-renders when form is visible -->
+      <div class="h-captcha"
+           data-sitekey="e6e84da2-ef56-4600-bae0-45a2ab66c9fa"
+           data-theme="light"
+           data-size="normal"
+           style="margin-bottom:10px"
+           id="hcaptcha-widget"></div>
       <button class="btn btn-p btn-bl" id="reg-btn" style="margin-top:6px" onclick="doRegister()">Buat Akun</button>
       <p style="text-align:center;font-size:12px;color:var(--t3);margin-top:10px">Sudah punya akun? <a href="#" onclick="switchAuthTab('login');return false" style="color:var(--r1);font-weight:600">Masuk di sini</a></p>
     </div>
@@ -1554,36 +1559,7 @@ function switchAuthTab(t){
   document.querySelectorAll('.auth-tab').forEach((b,i)=>b.classList.toggle('on',(t==='login'&&i===0)||(t==='register'&&i===1)));
   document.getElementById('form-login').classList.toggle('on',t==='login');
   document.getElementById('form-register').classList.toggle('on',t==='register');
-  // Render Turnstile AFTER register form is visible (widget needs visible container)
-  if(t==='register') renderTurnstile();
   document.getElementById('auth-err').classList.remove('on');
-}
-
-// Render Turnstile manually — safe to call multiple times (prevents duplicates)
-function renderTurnstile(){
-  const container=document.getElementById('cf-turnstile-widget');
-  if(!container){console.warn('[Turnstile] container not found');return;}
-  // Already rendered — skip
-  if(container.querySelector('iframe')){console.log('[Turnstile] already rendered');return;}
-  // Turnstile script not loaded yet — retry
-  if(typeof turnstile==='undefined'){
-    console.log('[Turnstile] script not ready, retrying...');
-    setTimeout(renderTurnstile, 800);
-    return;
-  }
-  console.log('[Turnstile] rendering now...');
-  try{
-    turnstile.render('#cf-turnstile-widget',{
-      sitekey:'0x4AAAAAADFHSihoB5tBmo9ra',
-      theme:'light',
-      callback:function(token){console.log('[Turnstile] token received, length:',token.length);},
-      'error-callback':function(){console.warn('[Turnstile] error callback fired');},
-      'expired-callback':function(){console.warn('[Turnstile] token expired');},
-    });
-    console.log('[Turnstile] render() called OK');
-  }catch(e){
-    console.error('[Turnstile] render failed:',e.message);
-  }
 }
 
 async function doLogin(){
@@ -1633,9 +1609,11 @@ async function doRegister(){
   }
 
   // Turnstile CAPTCHA validation
-  const turnstileToken=document.querySelector('[name="cf-turnstile-response"]')?.value;
-  if(!turnstileToken){
-    err.textContent='Selesaikan verifikasi keamanan terlebih dahulu.';err.classList.add('on');return;
+  // hCaptcha validation
+  const hcToken = hcaptcha.getResponse();
+  if(!hcToken){
+    err.textContent='Selesaikan verifikasi keamanan terlebih dahulu.';
+    err.classList.add('on');return;
   }
 
   // Loading state
@@ -1685,7 +1663,8 @@ async function doRegister(){
     });
 
     // Reset Turnstile for next attempt
-    if(typeof turnstile!=='undefined')turnstile.reset();
+    // Reset hCaptcha for next attempt
+    if(typeof hcaptcha!=='undefined') hcaptcha.reset();
 
   }catch(e){
     err.textContent='Koneksi bermasalah. Pastikan internet kamu aktif.';err.classList.add('on');
