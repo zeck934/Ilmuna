@@ -116,8 +116,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--cr);color:var(--tx);min-h
 .lb:nth-child(1){width:300px;height:300px;background:radial-gradient(circle,#fcedf2,transparent);top:-80px;right:-60px}
 .lb:nth-child(2){width:260px;height:260px;background:radial-gradient(circle,#f2eefb,transparent);bottom:-50px;left:-50px}
 .lb:nth-child(3){width:180px;height:180px;background:radial-gradient(circle,#e6f4ef,transparent);top:50%;left:50%;transform:translate(-50%,-50%)}
-.auth-card{background:white;border-radius:var(--rr);padding:28px 22px;width:100%;max-width:380px;box-shadow:0 4px 24px rgba(0,0,0,.12);position:relative;z-index:1;border:1px solid var(--bdl)}
-.logo-wrap{text-align:center;margin-bottom:24px}
+.auth-card{background:white;border-radius:var(--rr);padding:22px 22px 28px;width:100%;max-width:380px;box-shadow:0 4px 24px rgba(0,0,0,.12);position:relative;z-index:1;border:1px solid var(--bdl);max-height:92vh;overflow-y:auto}
+.logo-wrap{text-align:center;margin-bottom:16px}
+.logo-wrap img{max-width:160px;height:auto;display:block;margin:0 auto}
 .logo-mark{display:none}
 .logo-mark::before{display:none}
 .app-name{display:none}
@@ -439,8 +440,38 @@ textarea.fc{resize:vertical;min-height:80px}
 .ob-inline-text{font-size:13px;color:var(--rd);font-weight:500;line-height:1.5}
 .ob-inline-btn{font-size:12px;font-weight:700;padding:7px 14px;border-radius:8px;border:none;background:var(--r1);color:white;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;flex-shrink:0}
 
+/* ── PWA INSTALL PROMPT ────────────────────────────────────── */
+#pwa-prompt{
+  position:fixed;bottom:0;left:0;right:0;z-index:800;
+  padding:0 12px 12px;
+  display:none;
+  animation:shUp .36s cubic-bezier(.34,1.1,.64,1);
+}
+#pwa-prompt.on{display:block}
+.pwa-card{
+  background:var(--cr);border-radius:22px;
+  box-shadow:0 -2px 40px rgba(160,50,80,.18),0 8px 32px rgba(160,50,80,.12);
+  border:1.5px solid var(--bdl);
+  padding:20px 18px 18px;
+  max-width:520px;margin:0 auto;
+}
+.pwa-top{display:flex;align-items:center;gap:13px;margin-bottom:14px}
+.pwa-icon{width:52px;height:52px;border-radius:14px;background:var(--gm);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(160,50,80,.25)}
+.pwa-info{flex:1}
+.pwa-title{font-size:15px;font-weight:700;color:var(--tx);margin-bottom:2px}
+.pwa-desc{font-size:12px;color:var(--t2);line-height:1.5}
+.pwa-steps{background:var(--wa);border-radius:var(--rs2);padding:11px 13px;margin-bottom:14px;font-size:12px;color:var(--t2);line-height:1.8}
+.pwa-steps b{color:var(--tx)}
+.pwa-steps .pwa-platform{display:none}
+.pwa-steps .pwa-platform.show{display:block}
+.pwa-btns{display:flex;flex-direction:column;gap:8px}
+.pwa-btn-install{width:100%;padding:13px;border:none;cursor:pointer;background:var(--gm);color:white;border-radius:var(--rs2);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;box-shadow:0 4px 14px rgba(160,50,80,.28);transition:transform .15s,opacity .15s}
+.pwa-btn-install:active{transform:scale(.97);opacity:.9}
+.pwa-btn-row{display:flex;gap:8px}
+.pwa-btn-later,.pwa-btn-never{flex:1;padding:10px;border:1.5px solid var(--bd);background:transparent;border-radius:var(--rx);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:var(--t2);cursor:pointer;transition:all .15s}
+.pwa-btn-never{color:var(--t3);border-color:var(--bdl);font-size:12px}
+
 @media print{
-  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .topbar,.bnav,.smov,.rep-actions,.irep-actions,.fab,
   #lo,#ll,.moverlay,#tb-back-btn,.bnav-btn,
   .sh,.page:not(#pg-laporan),
@@ -1090,26 +1121,55 @@ textarea.fc{resize:vertical;min-height:80px}
     <div class="mhandle"></div>
     <div class="pricing-header">
       <h3>Pilih Paket Ilmuna</h3>
-      <p>Bayar sekali, nikmati selamanya 🤍</p>
-      <span class="pricing-once">Sekali bayar, selamanya</span>
+      <p>Mulai gratis, upgrade kapanpun kamu siap 🤍</p>
     </div>
     <div class="pricing-cards">
-      <!-- PREMIUM — SINGLE PLAN -->
-      <div class="pricing-card primary">
-        <div class="pricing-badge">Untuk guru yang serius 💎</div>
-        <div class="pricing-plan-name">Premium</div>
-        <div class="pricing-price">Rp149.000</div>
-        <div class="pricing-price-sub">Sekali bayar, langsung aktif</div>
+
+      <!-- FREE -->
+      <div class="pricing-card">
+        <div class="pricing-plan-name">🌱 Gratis</div>
+        <div class="pricing-price" style="font-size:26px">Rp0</div>
+        <div class="pricing-price-sub">Selamanya gratis</div>
         <ul class="pricing-features">
-          <li>Murid tanpa batas — tambah sebanyak yang kamu ajar</li>
-          <li>Laporan pertemuan otomatis, tinggal kirim ke orang tua</li>
-          <li>Tampilan laporan bersih tanpa watermark</li>
-          <li>Fitur grup belajar untuk kelas bersama</li>
-          <li>Support dibantu sampai bisa pakai</li>
+          <li>Maksimal 3 murid</li>
+          <li>Catat sesi & laporan otomatis</li>
+          <li>Kirim laporan via WhatsApp</li>
         </ul>
-        <p class="pricing-microcopy">Tools yang membantu kamu lebih fokus mengajar, bukan nulis laporan ✨</p>
-        <button class="btn btn-p btn-bl" onclick="closeUpgradeModal('m-pricing');showUpgradeInfo('premium')">Aktifkan via WhatsApp</button>
+        <p class="pricing-microcopy">Cocok untuk mulai mencoba Ilmuna</p>
+        <button class="btn btn-gh btn-bl" onclick="closeUpgradeModal('m-pricing')">Pakai versi gratis</button>
       </div>
+
+      <!-- PREMIUM BULANAN — highlight -->
+      <div class="pricing-card primary" style="margin-top:16px">
+        <div class="pricing-badge">Paling fleksibel ✨</div>
+        <div class="pricing-plan-name">💎 Premium Bulanan</div>
+        <div class="pricing-price">Rp19.000</div>
+        <div class="pricing-price-sub">per bulan · bisa berhenti kapanpun</div>
+        <ul class="pricing-features">
+          <li>Murid tanpa batas</li>
+          <li>Laporan otomatis tanpa watermark</li>
+          <li>Fitur grup belajar</li>
+          <li>Support dibantu sampai bisa</li>
+        </ul>
+        <p class="pricing-microcopy">Bayar bulan ini, nikmati semua fiturnya ✨</p>
+        <button class="btn btn-p btn-bl" onclick="closeUpgradeModal('m-pricing');showUpgradeInfo('bulanan')">Aktifkan via WhatsApp</button>
+      </div>
+
+      <!-- PREMIUM TAHUNAN -->
+      <div class="pricing-card" style="border-color:var(--a1);background:var(--as)">
+        <div class="pricing-badge" style="background:linear-gradient(135deg,#e09030,#f0c060)">Hemat terbaik 🏆</div>
+        <div class="pricing-plan-name" style="color:#7a5010">🌟 Premium Tahunan</div>
+        <div class="pricing-price" style="font-size:28px;color:#7a5010">Rp149.000</div>
+        <div class="pricing-price-sub" style="color:#a07020">per tahun · setara Rp12.400/bulan</div>
+        <ul class="pricing-features" style="color:#5a3a10">
+          <li>Semua fitur Premium Bulanan</li>
+          <li>Hemat 35% dibanding bulanan</li>
+          <li>Prioritas support</li>
+        </ul>
+        <p class="pricing-microcopy" style="color:#a07020">Bayar setahun, hemat lebih banyak 💛</p>
+        <button class="btn btn-a btn-bl" onclick="closeUpgradeModal('m-pricing');showUpgradeInfo('tahunan')">Aktifkan via WhatsApp</button>
+      </div>
+
     </div>
     <div class="wa-fallback" id="wafb-pricing">
       <div class="wa-fallback-label">WhatsApp tidak terbuka? Hubungi langsung:</div>
@@ -1118,7 +1178,7 @@ textarea.fc{resize:vertical;min-height:80px}
         <button class="wa-copy-btn" id="wacopy-pricing" onclick="copyAdminWA('wacopy-pricing')">Salin</button>
       </div>
     </div>
-    <p class="pricing-note">Harga dapat menyesuaikan seiring penambahan fitur 🌱</p>
+    <p class="pricing-note">Harga dapat berubah mengikuti pengembangan fitur 🌱</p>
     <button class="btn btn-gh btn-bl" style="margin-top:10px" onclick="closeUpgradeModal('m-pricing')">Tutup</button>
   </div>
 </div>
@@ -1345,7 +1405,7 @@ const MAX_RETRIES=3;            // max retries before dropping an op
 const SYNC_BATCH=3;             // SYNC LIMIT: max ops per cycle
 const DELAY_NORMAL=500;         // base delay between ops (ms)
 const DELAY_SLOW=5000;          // SLOW MODE base delay
-const DELAY_INITIAL=3000;       // delay before first sync after app load
+const DELAY_INITIAL=800;        // delay before first sync after app load
 
 // ADAPTIVE DELAY: increases with retry count and slow mode
 function getDelay(retries){
@@ -1699,7 +1759,7 @@ async function bootApp(user){
   // Plan badge will be rendered by _applyPlanBadge after syncProfile completes.
   // For now just show loading state if plan is null (first load).
   _applyPlanBadge(user.plan, user.role);
-  setTimeout(()=>{renderDash();checkProgressNudge();ob_maybeShowStep1();},10);
+  setTimeout(()=>{renderDash();checkProgressNudge();ob_maybeShowStep1();pwaInitPrompt();},10);
 }
 
 // ── SYNC PROFILE: fetch plan from Supabase (source of truth) ──
@@ -3606,16 +3666,13 @@ const ADMIN_WA_DISPLAY='0897 7269 383';
 function showUpgradeInfo(plan){
   const name=currentUser?currentUser.name:'';
   const stuCount=appData&&appData.students?appData.students.length:0;
-  // If called from pricing card, use selected plan label; else open pricing first
-  if(!plan){
-    openUpgradeModal('m-pricing');
-    return;
-  }
-  const planLabel='Premium (Rp149.000)';
-  const msg='Halo kak, saya mau upgrade Ilmuna \uD83D\uDE4C\nNama: '+name+'\nJumlah murid saat ini: '+stuCount+'\nPaket yang dipilih: '+planLabel+'\nBoleh info cara bayarnya?';
-  toast('Menghubungkan ke WhatsApp... \uD83D\uDCAC');
+  if(!plan){openUpgradeModal('m-pricing');return;}
+  const planLabel=plan==='tahunan'
+    ?'Premium Tahunan (Rp149.000/tahun)'
+    :'Premium Bulanan (Rp19.000/bulan)';
+  const msg='Halo kak, saya mau upgrade Ilmuna 🙌\nNama: '+name+'\nJumlah murid saat ini: '+stuCount+'\nPaket yang dipilih: '+planLabel+'\nBoleh info cara bayarnya?';
+  toast('Menghubungkan ke WhatsApp... 💬');
   setTimeout(()=>{window.open('https://wa.me/'+ADMIN_WA+'?text='+encodeURIComponent(msg),'_blank');},600);
-  // Show fallback after 2s in case WA app doesn't open
   setTimeout(()=>{
     const targets=['wafb-student','wafb-export','wafb-pricing'];
     targets.forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='block';});
@@ -3971,6 +4028,124 @@ function exportProfileHTML(){
   toast('✅ Halaman berhasil diunduh: profil-saya.html');
 }
 
+</script>
+
+<!-- PWA INSTALL PROMPT -->
+<div id="pwa-prompt">
+  <div class="pwa-card">
+    <div class="pwa-top">
+      <div class="pwa-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+      </div>
+      <div class="pwa-info">
+        <div class="pwa-title">Install Ilmuna di HP kamu 📲</div>
+        <div class="pwa-desc">Akses lebih cepat, seperti aplikasi biasa — tanpa buka browser dulu</div>
+      </div>
+    </div>
+    <div class="pwa-steps">
+      <div class="pwa-platform" id="pwa-android">
+        <b>Android:</b> Ketuk tombol "Install" di bawah → konfirmasi → selesai! 🎉
+      </div>
+      <div class="pwa-platform" id="pwa-ios">
+        <b>iPhone/iPad:</b> Ketuk ikon <b>⎦↑⎡</b> Share di Safari → pilih <b>"Add to Home Screen"</b> → ketuk <b>Add</b>
+      </div>
+      <div class="pwa-platform" id="pwa-other">
+        Buka di <b>Chrome</b> atau <b>Safari</b> untuk bisa install ke layar utama HP
+      </div>
+    </div>
+    <div class="pwa-btns">
+      <button class="pwa-btn-install" id="pwa-install-btn" onclick="pwaDoInstall()">📲 Install Sekarang</button>
+      <div class="pwa-btn-row">
+        <button class="pwa-btn-later" onclick="pwaLater()">Nanti saja</button>
+        <button class="pwa-btn-never" onclick="pwaNever()">Jangan tampilkan lagi</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================================================
+   PWA INSTALL PROMPT
+================================================ */
+let _pwaDeferred=null;
+const PWA_KEY='ilmuna_pwa_dismissed';
+
+// Capture browser install prompt
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();
+  _pwaDeferred=e;
+  console.log('[PWA] prompt captured');
+});
+
+// Detect platform
+function _pwaPlatform(){
+  const ua=navigator.userAgent;
+  if(/iPhone|iPad|iPod/.test(ua))return'ios';
+  if(/Android/.test(ua))return'android';
+  return'other';
+}
+
+// Check if already installed
+function _pwaInstalled(){
+  return window.matchMedia('(display-mode: standalone)').matches
+    ||window.navigator.standalone===true;
+}
+
+// Show platform-specific instructions
+function _pwaShowPlatform(){
+  const p=_pwaPlatform();
+  ['android','ios','other'].forEach(id=>{
+    const el=document.getElementById('pwa-'+id);
+    if(el)el.classList.toggle('show',id===p);
+  });
+  // iOS can't trigger install programmatically
+  const btn=document.getElementById('pwa-install-btn');
+  if(btn)btn.style.display=p==='ios'?'none':'block';
+}
+
+// Called from bootApp after login — show after 15s delay
+function pwaInitPrompt(){
+  if(_pwaInstalled())return;
+  if(localStorage.getItem(PWA_KEY))return;
+  _pwaShowPlatform();
+  setTimeout(()=>{
+    if(!currentUser)return; // safety check
+    document.getElementById('pwa-prompt').classList.add('on');
+  },15000);
+}
+
+function pwaDoInstall(){
+  if(_pwaDeferred){
+    _pwaDeferred.prompt();
+    _pwaDeferred.userChoice.then(r=>{
+      if(r.outcome==='accepted')pwaHide();
+      _pwaDeferred=null;
+    });
+  }else{
+    toast('Gunakan menu browser → "Tambahkan ke layar utama" 🙏');
+    pwaHide();
+  }
+}
+
+function pwaLater(){ pwaHide(); }
+
+function pwaNever(){
+  localStorage.setItem(PWA_KEY,'1');
+  pwaHide();
+}
+
+function pwaHide(){
+  const el=document.getElementById('pwa-prompt');
+  if(!el)return;
+  el.style.cssText='opacity:0;transform:translateY(20px);transition:all .3s';
+  setTimeout(()=>el.classList.remove('on'),300);
+}
+
+window.addEventListener('appinstalled',()=>{
+  pwaHide();
+  localStorage.setItem(PWA_KEY,'1');
+  toast('Ilmuna berhasil diinstall! 🎉');
+});
 </script>
 </body>
 </html>
